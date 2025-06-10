@@ -111,7 +111,7 @@ on run argv
                         set noteTextPath to POSIX path of (folderTextPath & noteName & ".txt")
 
                         -- Save HTML content
-                        set htmlContent to body of theNote
+                        set htmlContent to "<meta charset=\"UTF-8\">" & body of theNote
 
                         my writeToFile(noteHTMLPath, htmlContent)
 
@@ -147,19 +147,23 @@ on writeToFile(filePath, content)
     try
         -- Convert the file path to a file object
         set fileObject to POSIX file filePath
-        -- Try to open the file for access
+        -- Try to open the file for access with UTF-8 encoding
         set fileDescriptor to open for access fileObject with write permission
-        write content to fileDescriptor starting at eof
+        set eof of fileDescriptor to 0 -- Clear file contents first
+        write content to fileDescriptor as «class utf8»
         close access fileDescriptor
     on error errMsg
         -- Log the error message
         log "Error writing to file: " & errMsg
 
         -- If the file does not exist, create it and then open for access
-        close access
+        try
+            close access
+        end try
         do shell script "touch " & quoted form of filePath
         set fileDescriptor to open for access fileObject with write permission
-        write content to fileDescriptor starting at eof
+        set eof of fileDescriptor to 0
+        write content to fileDescriptor as «class utf8»
         close access fileDescriptor
     end try
 end writeToFile

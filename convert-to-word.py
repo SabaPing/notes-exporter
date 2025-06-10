@@ -9,7 +9,7 @@ def convert_html_to_docx(html_folder_path):
     print(f"Docx directory created at: {docx_folder_path}")
 
     html_folder = Path(html_folder_path)
-    for html_file in html_folder.rglob("*.htm"):
+    for html_file in html_folder.rglob("*.html"):
         print(f"Processing file: {html_file}")
 
         # Determine new file paths
@@ -24,9 +24,20 @@ def convert_html_to_docx(html_folder_path):
             # Change the current working directory to the location of the HTML file
             os.chdir(html_file.parent)
 
-            # Use pypandoc to convert HTML to DOCX and specify the input format
-            pypandoc.convert_file(str(html_file), 'docx', format='html', outputfile=str(new_docx_file))
-            
+            # Use pypandoc with proper encoding options
+            extra_args = [
+                '--metadata', 'lang=zh-CN',
+                '--verbose'
+            ]
+
+            pypandoc.convert_file(
+                str(html_file),
+                'docx',
+                format='html',
+                outputfile=str(new_docx_file),
+                extra_args=extra_args
+            )
+
             print(f"Word document created: {new_docx_file}")
 
         except Exception as e:
